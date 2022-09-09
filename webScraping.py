@@ -34,10 +34,11 @@ servico = Service(ChromeDriverManager().install())
 navegador = webdriver.Chrome(service=servico, options=options)
 navegador.get(url)
 #navegador.fullscreen_window()
-sleep(3)
+sleep(5)
 tabela = {'nome': [], 'marca': [], 'preco': []}
 #navegador.execute_script("document.body.style.zoom='25%'")
 cont = len(respostas)
+print(respostas)
 j=0
 o=500
 for i, d in enumerate(respostas):
