@@ -1,3 +1,4 @@
+from lib2to3.pgen2 import driver
 from lib2to3.pgen2.token import OP
 import site
 import pandas as pd
@@ -22,8 +23,8 @@ def clickMais(i, Quant):
 
 
 options = Options()
-#options.add_argument(' --headless')
-options.add_argument('window-size=1600,2000')
+options.add_argument(' --headless')
+# options.add_argument('window-size=1600,2000')
 url = 'https://www.vipleiloes.com.br'
 
 headers = {
@@ -36,29 +37,34 @@ respostas = soup.find_all("div", class_='card crd-main d-flex')
 servico = Service(ChromeDriverManager().install())
 navegador = webdriver.Chrome(service=servico, options=options)
 navegador.get(url)
-element = navegador.find_element(By.TAG_NAME, 'body')
+#element = navegador.find_element(By.TAG_NAME, 'body')
 tabela = {'nome': [], 'marca': [], 'preco': []}
+navegador.execute_script("document.body.style.zoom='25%'")
 cont = len(respostas)
 for i, d in enumerate(respostas):
     nome = d.find('h2').get_text()
     marca = d.find('h3').get_text()
     preco = d.find('h4').get_text()
 
-    if nome not in tabela['nome'] and marca not in tabela['marca'] and preco not in tabela['preco']:
-        print('prestou')
+    if nome not in tabela['nome'] or marca not in tabela['marca'] or preco not in tabela['preco']:
+
         sleep(2)
-        for i in range(0, 12):
+        # navegador.execute_script("document.body.style.zoom='25%'")
+        navegador.execute_script("window.scrollTo(0,1000);")
+
+        """for i in range(0, 12):
             print(f"prestou {i}vezes")
             sleep(0.5)
-            element.send_keys(Keys.PAGE_DOWN)
+            element.send_keys(Keys.PAGE_DOWN)"""
+        sleep(5)
+
         tabela['nome'].append(nome)
         tabela['marca'].append(marca)
         tabela['preco'].append(preco)
         navegador.find_element(
-            By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[{i+1}]/a/img').click()
+            By.XPATH, f'//*[@id="crsl-feat-slide01"]/div/a/img').click()
 
-        navegador.find_element(
-            By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a/img').click()
+        navegador.back()
 
         print(f'conseguiu pegar {i+1}')
         clickMais(i, 6)
@@ -67,7 +73,7 @@ for i, d in enumerate(respostas):
         clickMais(i, 18)
         clickMais(i, 22)
 
-        #clickMais(i, 26)
+        # clickMais(i, 26)
     if i+1/2 == cont:
         break
 # print(tabela)
