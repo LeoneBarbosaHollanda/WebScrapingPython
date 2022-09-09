@@ -10,17 +10,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-
+options = Options
 servico = Service(ChromeDriverManager().install())
 navegador = webdriver.Chrome(service=servico)
-navegador.get('https://www.vipleiloes.com.br/')
-sleep(5)
-navegador.execute_script("window.scrollTo(0,1000);")
-sleep(5)
+navegador.get('https://www.leilomaster.com.br/veiculos?dados.VEI_TIPO.keyword=Categoria%3A+Ve%C3%ADculos%7CVe%C3%ADculos&pagina=1')
+navegador.fullscreen_window() 
+#navegador.execute_script("window.scrollTo(0,1000);")
+sleep(2)
+
+"""
 navegador.find_element(
     By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[1]/a').click()
-sleep(5)
-navegador.back()
+
+    
+sleep(2)
+#navegador.back()
 print('ate aqui prestou')
 sleep(20)
 '''navegador.find_element(
@@ -28,3 +32,4 @@ sleep(20)
 sleep(10)'''
 
 #new_height = navegador.execute_script("return document.body.scrollHeight")
+"""
