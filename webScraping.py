@@ -21,7 +21,7 @@ from selenium.webdriver.common.keys import Keys
 options = Options()
 #options.add_argument(' --headless')
 
-url = 'https://www.vipleiloes.com.br'
+url = 'https://www.vipleiloes.com.br/'
 
 headers = {
     'User-Agent':

@@ -23,22 +23,10 @@ navegador.get(url)
 
 #navegador.execute_script("window.scrollTo(0,1000);")
 sleep(2)
-i=2
+
 k=0
 o=500
-try:
-    navegador.find_element(By.XPATH,'/html/body/div[4]/div[2]/div/div[1]/i')
-except:
-    print("Sem anuncio para fechar")
-
 while True:
-    site = requests.get(url, headers=headers)
-    sleep(5)
-    soup = BeautifulSoup(site.content, 'html.parser')
-    sleep(5)
-    respostas = soup.find_all("div", class_="col-12 col-md-12 col-lg-12 q-mb-sm")
-    sleep(5)
-    print(respostas)
     for j,d in enumerate(respostas):
         try:
             navegador.find_element(By.XPATH,'/html/body/div[4]/div[2]/div/div[1]/i')
@@ -46,17 +34,18 @@ while True:
             print("Sem anuncio para fechar")
         sleep(5)
         try:
+            #Tenta clicar no 
             navegador.find_element(By.XPATH,f'//*[@id="q-app"]/div/div[2]/main/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[{j+1}]').click()
             sleep(5)
         except Exception:
-            navegador.execute_script('window.scrollTo({k},{o}')
+            navegador.execute_script(f'window.scrollTo({k},{o}')
             k=o
             o+=500
         else:
             navegador.back()
             sleep(5)
         if j+1==60:
-            navegador.find_element(By.XPATH,f'//*[@id="q-app"]/div/div[2]/main/div[2]/div[2]/div/div[2]/div[3]/div[1]/div/div[2]/div/div/div/button[{i+1}]')
-            url = f'https://www.leilomaster.com.br/veiculos?dados.VEI_TIPO.keyword=Categoria%3A+Ve%C3%ADculos%7CVe%C3%ADculos&pagina={i}'
-    i+=1
+            navegador.find_element('')
+            url = f''
+    
 
