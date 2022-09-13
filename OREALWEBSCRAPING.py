@@ -1,4 +1,5 @@
 
+from cgi import test
 from lib2to3.pgen2.token import OP
 import site
 from telnetlib import Telnet
@@ -46,9 +47,7 @@ scrollmin=0
 scrollmax=500
 while True:
     for j,d in enumerate(respostas):
-        urlCarro = d.find('a').get_text()
-        #parei aqui tentando pegar a URL
-        
+        urlCarro = d.find('a', attrs={'class':'dropdown-item'})['href']
         for k in range(0,3):
             navegador.find_element(By.XPATH,'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[3]/a/i')
              
@@ -58,12 +57,17 @@ while True:
             navegador.find_element(By.XPATH,f'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[{j+1}]').click()
             sleep(5)
         except Exception:
-                #Se ele nao clicar no carro, ele desce
-                navegador.execute_script(f'window.scrollTo({scrollmin},{scrollmax});')
-                scrollmin=scrollmax
-                scrollmax+=500
-                navegador.find_element(By.XPATH,f'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[{j+1}]').click()
-        
+            sleep(5)
+            #Se ele nao clicar no carro, ele desce
+            navegador.execute_script(f'window.scrollTo({scrollmin},{scrollmax});')
+            scrollmin=scrollmax
+            scrollmax+=500               
+            navegador.find_element(By.XPATH,f'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[{j+1}]').click()
+        site = requests.get(urlCarro, headers=headers)
+        soup = BeautifulSoup(site.content, 'html.parser')
+        infoCarros = soup.find_all('div',class_='row dv-itmrow')
+        infoCarros.find('')
+
         #se ele clicar no carro, ele vai retornar 
         navegador.back()
         sleep(5)
