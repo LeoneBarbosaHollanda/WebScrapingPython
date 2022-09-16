@@ -1,12 +1,6 @@
-
-from cgi import test
-from lib2to3.pgen2.token import OP
 import site
-from telnetlib import Telnet
 import pandas as pd
-import json
 import requests
-import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
@@ -16,8 +10,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 
-def dados(classe):
-    classe.find
+def sopa(url):
+    site = requests.get(url, headers=headers)
+    soup = BeautifulSoup(site.content, 'html.parser')
+    return soup
 
 options = Options()
 #options.add_argument(' --headless')
@@ -34,8 +30,7 @@ navegador.get(url)
 sleep(2)
 navegador.maximize_window()
 sleep(5)
-site = requests.get(url, headers=headers)
-soup = BeautifulSoup(site.content, 'html.parser')
+soup=sopa(url)
 respostas = soup.find_all("div", class_='card crd-main d-flex')
 
 #sleep(5)
@@ -63,8 +58,7 @@ while True:
             scrollmin=scrollmax
             scrollmax+=500               
             navegador.find_element(By.XPATH,f'//*[@id="sidebar-menu-container"]/div[2]/div[4]/div/div/div[2]/div/div[{j+1}]').click()
-        site = requests.get(urlCarro, headers=headers)
-        soup = BeautifulSoup(site.content, 'html.parser')
+        soup = sopa(urlCarro)
         infoCarros = soup.find_all('div',class_='row dv-itmrow')
         infoCarros.find('')
 

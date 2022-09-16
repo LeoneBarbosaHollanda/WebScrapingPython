@@ -43,9 +43,11 @@ j=0
 o=500
 for i, d in enumerate(respostas):
     nome = d.find('h2').get_text()
+    print(nome)
     marca = d.find('h3').get_text()
+    print(marca)
     preco = d.find('h4').get_text()
-
+    print(preco)
     if nome not in tabela['nome'] or marca not in tabela['marca'] or preco not in tabela['preco']:
 
         sleep(2)
