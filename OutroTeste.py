@@ -1,4 +1,5 @@
 
+from cgitb import strong
 from lib2to3.pgen2.token import OP
 from logging import exception
 import site
@@ -37,49 +38,64 @@ navegador = webdriver.Chrome(service=servico)
 navegador.get(urlMain)
 navegador.maximize_window()
 soup = sopa(urlMain)
-# print(navegador)
 respostas = soup.find_all("a", class_='hm-catitem')
 
 
-#print(respostas )
+tabela = { 'Veiculo': [], 'Ano': [], 'Localização do lote:': [],'Cor:':[],
+            'Combustivel':[],'Final da Placa':[],'Valor Fipe':[],'KM':[],'Situaçao de entrada':[],'Comitente':[]}
 
 
 for k, j in enumerate(respostas):
-    PgAnt = 1
-    PgPrx = 1
-    numPg = 1
     urlPag = f"{urlMain}{j['href']}"
     navegador.find_element(
         By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
-    soup = sopa(urlPag)
-    siteCarros = soup.find_all('div', class_='itm-card')
-
-    for l, v in enumerate(siteCarros):
-        pag = v.find('a', attrs={'class': 'itm-cdlink'})['href']
-        pag = pag.replace(f'Pagina={PgAnt}', f'Pagina={PgPrx}')
-        urlCarro = f'{urlMain}{pag}'
-        try:
-            navegador.find_element(
-                By.XPATH, f'//*[@id="cardmode"]/div/div[{l+1}]').click()
-
-        except Exception:
+    numPg=2
+    PgAnt=1
+    PgPrx=1
+    while True:
+        soup = sopa(urlPag)
+        siteCarros = soup.find_all('div', class_='itm-card')
+        
+        for l, v in enumerate(siteCarros):
+            pag = v.find('a', attrs={'class': 'itm-cdlink'})['href']
+            
             try:
-                car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
-                    (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[{numPg}]')))
-                navegador.execute_script('arguments[0].click()', car)
-                numPg += 1
-                l = 0
-                PgAnt = PgPrx
-                PgPrx += 1
-                print('o L é'+l)
-            except Exception:
                 navegador.find_element(
-                    By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
+                    By.XPATH, f'//*[@id="cardmode"]/div/div[{l+1}]').click()
+                    
+                sleep(5)
+#parei pra ca pra pegar a url do carro
+                urlCarro = f'{urlMain}{pag}'
+                soupDados = sopa(urlCarro)
+                dados=soupDados.find('div',class_='tab active spanBold')
+                carro=dados.find('p')
+                try:
+                    carro=carro.get_text()
+                    carro=carro.replace('\n',' ').split(':  ')
+                except:
+                    print('é, vamos ver como ficou:')
+                print(carro)
 
-                break
-        else:
-            navegador.back()
+
+            except Exception:
+                try:
+                    car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
+                        (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[{numPg}]')))
+                    navegador.execute_script('arguments[0].click()', car)
+                    numPg+=1
+                    pag = pag.replace(f'Pagina={PgAnt}', f'Pagina={PgPrx}')
+                    urlCarro = f'{urlMain}{pag}'
+                    break
+                except Exception:
+                    navegador.find_element(
+                        By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
+                    x=1
+                    break
+            else:
+                navegador.back()
+        if x==1:
+            x=0
+            break
 
 
-#tabela = {'nome': [], 'marca': [], 'preco': []}
 # navegador.execute_script("document.body.style.zoom='25%'")
