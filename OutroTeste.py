@@ -14,6 +14,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def sopa(url):
@@ -28,54 +31,55 @@ headers = {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
 }
 urlMain = 'https://www.vipleiloes.com.br/'
-numPg = 1
+
 servico = Service(ChromeDriverManager().install())
 navegador = webdriver.Chrome(service=servico)
 navegador.get(urlMain)
 navegador.maximize_window()
 soup = sopa(urlMain)
-#print(navegador)
+# print(navegador)
 respostas = soup.find_all("a", class_='hm-catitem')
 
 
 #print(respostas )
 
-    
-for k,j in enumerate(respostas):
-    PgAnt=1
-    PgPrx=1
-    urlPag=f"{urlMain}{j['href']}"
-    navegador.find_element(By.XPATH,f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
+
+for k, j in enumerate(respostas):
+    PgAnt = 1
+    PgPrx = 1
+    numPg = 1
+    urlPag = f"{urlMain}{j['href']}"
+    navegador.find_element(
+        By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
     soup = sopa(urlPag)
-    siteCarros = soup.find_all('div',class_='itm-card')
-    
-    for k,j in enumerate(siteCarros):
-        pag = j.find('a', attrs={'class':'itm-cdlink'})['href']
-        pag =pag.replace(f'Pagina={PgAnt}',f'Pagina={PgPrx}')
+    siteCarros = soup.find_all('div', class_='itm-card')
+
+    for l, v in enumerate(siteCarros):
+        pag = v.find('a', attrs={'class': 'itm-cdlink'})['href']
+        pag = pag.replace(f'Pagina={PgAnt}', f'Pagina={PgPrx}')
         urlCarro = f'{urlMain}{pag}'
         try:
-            navegador.find_element(By.XPATH,f'//*[@id="cardmode"]/div/div[{k+1}]' ).click()
-        
+            navegador.find_element(
+                By.XPATH, f'//*[@id="cardmode"]/div/div[{l+1}]').click()
+
         except Exception:
             try:
-                navegador.find_element(By.XPATH,'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[9]').click()
-                numPg+=1
+                car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
+                    (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[{numPg}]')))
+                navegador.execute_script('arguments[0].click()', car)
+                numPg += 1
+                l = 0
+                PgAnt = PgPrx
+                PgPrx += 1
+                print('o L é'+l)
             except Exception:
-                navegador.find_element(By.XPATH,'//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
-                PgAnt=PgPrx
-                PgPrx+=1
+                navegador.find_element(
+                    By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
+
                 break
         else:
-           navegador.back() 
-
-            
-            
-    
+            navegador.back()
 
 
 #tabela = {'nome': [], 'marca': [], 'preco': []}
-#navegador.execute_script("document.body.style.zoom='25%'")
-
-
-
-
+# navegador.execute_script("document.body.style.zoom='25%'")
