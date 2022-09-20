@@ -41,60 +41,68 @@ soup = sopa(urlMain)
 respostas = soup.find_all("a", class_='hm-catitem')
 
 
-tabela = { 'Veiculo': [], 'Ano': [], 'Localização do lote:': [],'Cor:':[],
-            'Combustivel':[],'Final da Placa':[],'Valor Fipe':[],'KM':[],'Situaçao de entrada':[],'Comitente':[]}
+tabela = {' Veículo': [], ' Cor': [], ' Valor Fipe': [],  ' Ano': [],
+          ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], 'Situaçao de entrada': [], ' Comitente': []}
 
 
 for k, j in enumerate(respostas):
     urlPag = f"{urlMain}{j['href']}"
     navegador.find_element(
         By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
-    numPg=2
-    PgAnt=1
-    PgPrx=1
+    numPg = 2
+    PgAnt = 1
+    PgPrx = 1
     while True:
         soup = sopa(urlPag)
         siteCarros = soup.find_all('div', class_='itm-card')
-        
+
         for l, v in enumerate(siteCarros):
             pag = v.find('a', attrs={'class': 'itm-cdlink'})['href']
-            
+
             try:
                 navegador.find_element(
                     By.XPATH, f'//*[@id="cardmode"]/div/div[{l+1}]').click()
-                    
+
                 sleep(5)
-#parei pra ca pra pegar a url do carro
+
                 urlCarro = f'{urlMain}{pag}'
                 soupDados = sopa(urlCarro)
-                dados=soupDados.find('div',class_='tab active spanBold')
-                carro=dados.find('p')
-                try:
-                    carro=carro.get_text()
-                    carro=carro.replace('\n',' ').split(':  ')
-                except:
-                    print('é, vamos ver como ficou:')
-                print(carro)
-
+                dados = soupDados.find('div', class_='col-md-12')
+                carro = dados.find_all('p')
+                for d in carro:
+                    DadoCarros = d.get_text()
+                    DadoCarros = DadoCarros.replace(
+                        '\n', ' ').replace('  ', ' ').split(': ')
+                    # print(DadoCarros)
+                    try:
+                        tabela[f'{DadoCarros[0]}'].append(DadoCarros[1])
+                        print(tabela)
+                        tb = pd.DataFrame(tabela)
+                        print(tb)
+                    except:
+                        pass
 
             except Exception:
                 try:
                     car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
                         (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[{numPg}]')))
                     navegador.execute_script('arguments[0].click()', car)
-                    numPg+=1
+                    numPg += 1
                     pag = pag.replace(f'Pagina={PgAnt}', f'Pagina={PgPrx}')
                     urlCarro = f'{urlMain}{pag}'
                     break
                 except Exception:
                     navegador.find_element(
                         By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
-                    x=1
+                    #tab = pd.DataFrame(tabela)
+                    # print(tab)
+
+                    x = 1
                     break
             else:
                 navegador.back()
-        if x==1:
-            x=0
+        if x == 1:
+            x = 0
             break
 
 
