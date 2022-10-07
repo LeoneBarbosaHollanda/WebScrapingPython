@@ -72,7 +72,7 @@ for k, j in enumerate(respostas):
             By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
     except:
         quit()
-        exit()
+        
     # Variaveis para ajudar a  pegas as paginas seguintes
     numPg = 2
     PgAnt = 1
@@ -134,7 +134,6 @@ for k, j in enumerate(respostas):
                         By.XPATH, '//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
                     numPg += 1
                     cont = len(tabela[' Ano'])
-
                     x = 1
                     break
 
