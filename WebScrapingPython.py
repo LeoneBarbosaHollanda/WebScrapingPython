@@ -127,7 +127,7 @@ for k, j in enumerate(respostas):
                     DadoCarros = DadoCarros.replace(
                         '\n', ' ').replace('  ', ' ').split(': ')
                     
-
+        #teste teste teste
                     try:
                         tabela[f'{DadoCarros[0]}'].append(DadoCarros[1])
                         listaBD[quantBD] = DadoCarros[1]
