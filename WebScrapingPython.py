@@ -65,44 +65,41 @@ tabela = {'preço': [], ' Veículo': [], ' Cor': [], ' Valor Fipe': [],  ' Ano':
 x = 0
 # durante a execuçao desse For, ele vai entrar em cada uma das categorias, usados, seminovos e outros, e cada um deles o codigo vai pegar os dados
 for k, j in enumerate(respostas):
-    
+
     urlPag = f"{urlMain}{j['href']}"
     try:
         navegador.find_element(
-        By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
-        
+            By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/div[3]/div/div/a[{k+1}]').click()
+
     except:
         quit()
     try:
         soup = sopa(urlPag)
-        paginaNum = soup.find('a',class_="itm-nbr active")['href']
-        
+        paginaNum = soup.find('a', class_="itm-nbr active")['href']
+
         car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
-        (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[1]')))
+            (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[1]')))
         navegador.execute_script('arguments[0].click()', car)
     except:
         pass
-        
+
     # Variaveis para ajudar a  pegas as paginas seguintes
     numPg = 2
     PgAnt = 1
     PgPrx = 2
-    
+
     while True:
         # aqui ja dentro das categorias (semi novos) vai pegar os dados ate acabar TODOS os carros de todas as partes
-        
-        
-            
-        
+
         try:
             soup = sopa(f'{urlMain}{paginaNum}')
             siteCarros = soup.find_all('div', class_='itm-card')
-            
+
         except:
             navegador.find_element(
-        By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
+                By.XPATH, f'//*[@id="sidebar-menu-container"]/div[2]/header/nav/div/a').click()
             break
-            
+
         # entra no site do carro e pega os dados do carro
         for l, v in enumerate(siteCarros):
             if l > 8:
@@ -126,8 +123,8 @@ for k, j in enumerate(respostas):
                     DadoCarros = d.get_text()
                     DadoCarros = DadoCarros.replace(
                         '\n', ' ').replace('  ', ' ').split(': ')
-                    
-        #teste teste teste
+
+        # teste teste teste
                     try:
                         tabela[f'{DadoCarros[0]}'].append(DadoCarros[1])
                         listaBD[quantBD] = DadoCarros[1]
@@ -143,11 +140,11 @@ for k, j in enumerate(respostas):
                     car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
                         (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[{PgPrx}]')))
                     navegador.execute_script('arguments[0].click()', car)
-                    paginaNum = paginaNum.replace(f'Pagina={PgAnt}', f'Pagina={PgPrx}')
+                    paginaNum = paginaNum.replace(
+                        f'Pagina={PgAnt}', f'Pagina={PgPrx}')
                     PgAnt = PgPrx
                     PgPrx += 1
                     urlCarro = f'{urlMain}{paginaNum}'
-                    
 
                 except Exception:
                     # Quando voltar para a pagina principal, vai quebrar o WHILE e passar a categoria
@@ -161,11 +158,11 @@ for k, j in enumerate(respostas):
             else:
                 comando = "INSERT INTO {} (preço, Veículo, Cor, ValorFipe, Ano,Combustível, KM, SituaçãodeEntrada, FinalPlaca, Comitente) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(
                     NomeTabela)
-                #print(listaBD)
+                # print(listaBD)
                 cursor.execute(comando, listaBD)
                 conexao.commit()
                 navegador.back()
-        
+
         if x == 1:
             x = 0
             break
