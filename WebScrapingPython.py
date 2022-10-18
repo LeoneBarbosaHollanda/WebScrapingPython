@@ -42,6 +42,12 @@ def sopa(url):
     return soup
 
 
+def converToBinary(filename):
+    with open(filename, 'rb')as file:
+        binarydata = file.read()
+    return binarydata
+
+
 # headers do google pra baixar automaticamente sem precisar pesquisar no google
 headers = {
     'User-Agent':
@@ -57,10 +63,10 @@ navegador.maximize_window()
 soup = sopa(urlMain)
 respostas = soup.find_all("a", class_='hm-catitem')
 # lista que vai interagir do python pro banco de dados
-listaBD = ['', '', '', '', '', '', '', '', '', '']
+listaBD = ['', '', '', '', '', '', '', '', '', '', '', '', '', '']
 # a tabela que vai ficar cada dado do carro
 tabela = {'preço': [], ' Veículo': [], ' Cor': [], ' Valor Fipe': [],  ' Ano': [],
-          ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], ' Comitente': [], 'foto1':[],'foto2':[],'foto3':[],'foto4':[]}
+          ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], ' Comitente': [], 'foto1': [], 'foto2': [], 'foto3': [], 'foto4': []}
 
 x = 0
 # durante a execuçao desse For, ele vai entrar em cada uma das categorias, usados, seminovos e outros, e cada um deles o codigo vai pegar os dados
@@ -76,7 +82,7 @@ for k, j in enumerate(respostas):
     try:
         soup = sopa(urlPag)
         paginaNum = soup.find('a', class_="itm-nbr active")['href']
-        fotosLink = soup.find('img',class_='dtp-imgactive')['src']
+        fotosLink = soup.find('img', class_='dtp-imgactive')['src']
 
         car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
             (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[1]')))
@@ -117,10 +123,13 @@ for k, j in enumerate(respostas):
                 urlCarro = f'{urlMain}{pagCar}'
                 soupDados = sopa(urlCarro)
                 dadosCar = soupDados.find('div', class_='col-md-12')
-                ftCar = soupDados.findAll('img', class_='carousel-item dtp-imgactive') 
+                ftCar = soupDados.find_all(
+                    'img', class_='dtp-imgactive')
+
                 carro = dadosCar.find_all('p')
+
                 quantBD = 1
-                
+
                 for j, d in enumerate(carro):
                     DadoCarros = d.get_text()
                     DadoCarros = DadoCarros.replace(
@@ -133,16 +142,19 @@ for k, j in enumerate(respostas):
                         quantBD += 1
                     except:
                         pass
-                #fotos para o banco de dados
-                for num,pic in enumerate(ftCar):
-                    with open(listaBD[1].strip().split(' ')+f'{num}.jpg','wb')as f:
-                        img=re.get(fotosLink)
+                # fotos para o banco de dados
+                for num, pic in enumerate(ftCar):
+                    print(listaBD[num+10])
+                    nomeFoto = f'{listaBD[num+10]}'+f'{num}.jpg'
+
+                    with open(nomeFoto, 'wb')as f:
+                        img = re.get(fotosLink['src'])
                         f.write(img.content)
-                        #parei aqui faznedo fotos para o banco de dados, ja baixei as fotos
+                    listaBD[num+10] = converToBinary(nomeFoto)
+
+                    # parei aqui faznedo fotos para o banco de dados, ja baixei as fotos
                 """for i in range(11,14):
                     quantBD"""
-                    
-
 
             except Exception:
                 # quando nao conseguir clicar no carro, vai passar a pagina ate nao conseguir, quando nao conseguir,
