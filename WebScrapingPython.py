@@ -1,6 +1,4 @@
-import pandas as pd
 import requests
-import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -29,7 +27,7 @@ Verificar = cursor.fetchall()
 if (f'{NomeTabela}',) not in Verificar:
     print(f'Criando {NomeTabela}')
 
-    cursor.execute(f'CREATE TABLE {NomeTabela} (id INT AUTO_INCREMENT PRIMARY KEY, preço VARCHAR(255),   Veículo VARCHAR(255),   Cor VARCHAR(255),   ValorFipe VARCHAR(255),   Ano VARCHAR(255),   Combustível VARCHAR(255), KM VARCHAR(255) ,SituaçãodeEntrada VARCHAR(255) ,FinalPlaca VARCHAR(255),  Comitente VARCHAR(255))')
+    cursor.execute(f'CREATE TABLE {NomeTabela} (id INT AUTO_INCREMENT PRIMARY KEY, preço VARCHAR(255),   Veículo VARCHAR(255),   Cor VARCHAR(255),   ValorFipe VARCHAR(255),   Ano VARCHAR(255),   Combustível VARCHAR(255), KM VARCHAR(255) ,SituaçãodeEntrada VARCHAR(255) ,FinalPlaca VARCHAR(255),  Comitente VARCHAR(255), foto01 LONGBLOB, foto02 LONGBLOB, foto03 LONGBLOB, foto04 LONGBLOB)')
     print('tabela criada com sucesso')
 else:
     print('tabela ja criada')
@@ -66,7 +64,7 @@ respostas = soup.find_all("a", class_='hm-catitem')
 listaBD = ['', '', '', '', '', '', '', '', '', '', '', '', '', '']
 # a tabela que vai ficar cada dado do carro
 tabela = {'preço': [], ' Veículo': [], ' Cor': [], ' Valor Fipe': [],  ' Ano': [],
-          ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], ' Comitente': [], 'foto1': [], 'foto2': [], 'foto3': [], 'foto4': []}
+          ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], ' Comitente': [], 'foto01': [], 'foto02': [], 'foto03': [], 'foto04': []}
 
 x = 0
 # durante a execuçao desse For, ele vai entrar em cada uma das categorias, usados, seminovos e outros, e cada um deles o codigo vai pegar os dados
@@ -82,8 +80,6 @@ for k, j in enumerate(respostas):
     try:
         soup = sopa(urlPag)
         paginaNum = soup.find('a', class_="itm-nbr active")['href']
-        fotosLink = soup.find('img', class_='dtp-imgactive')['src']
-
         car = WebDriverWait(navegador, 20).until(EC.element_to_be_clickable(
             (By.XPATH, f'//*[@id="listing-cars"]/div[2]/div/div[1]/div[2]/a[1]')))
         navegador.execute_script('arguments[0].click()', car)
@@ -138,23 +134,23 @@ for k, j in enumerate(respostas):
                     try:
                         tabela[f'{DadoCarros[0]}'].append(DadoCarros[1])
                         listaBD[quantBD] = DadoCarros[1]
-                        print(listaBD)
                         quantBD += 1
                     except:
                         pass
                 # fotos para o banco de dados
                 for num, pic in enumerate(ftCar):
-                    print(listaBD[num+10])
-                    nomeFoto = f'{listaBD[num+10]}'+f'{num}.jpg'
-
+                    
+                    nomeFoto = f'{listaBD[1]}foto{num+1}.jpg'.replace(' ','').lower()
+                    
+                    
                     with open(nomeFoto, 'wb')as f:
-                        img = re.get(fotosLink['src'])
+                        img = requests.get(pic['src'])
                         f.write(img.content)
-                    listaBD[num+10] = converToBinary(nomeFoto)
+                    if num <4:
+                        listaBD[num+10] = converToBinary(nomeFoto)
 
                     # parei aqui faznedo fotos para o banco de dados, ja baixei as fotos
-                """for i in range(11,14):
-                    quantBD"""
+                
 
             except Exception:
                 # quando nao conseguir clicar no carro, vai passar a pagina ate nao conseguir, quando nao conseguir,
@@ -179,9 +175,9 @@ for k, j in enumerate(respostas):
                     break
 
             else:
-                comando = "INSERT INTO {} (preço, Veículo, Cor, ValorFipe, Ano,Combustível, KM, SituaçãodeEntrada, FinalPlaca, Comitente, foto1, foto2, foto3, foto4) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(
+                comando = "INSERT INTO {} (preço, Veículo, Cor, ValorFipe, Ano,Combustível, KM, SituaçãodeEntrada, FinalPlaca, Comitente, foto01, foto02, foto03, foto04) VALUES ( %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(
                     NomeTabela)
-                # print(listaBD)
+               
                 cursor.execute(comando, listaBD)
                 conexao.commit()
                 navegador.back()
