@@ -4,10 +4,11 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-
+import os
+from pathlib import Path
 import mysql.connector
 
 # conexao com o banco de dados
@@ -65,7 +66,7 @@ listaBD = ['', '', '', '', '', '', '', '', '', '', '', '', '', '']
 # a tabela que vai ficar cada dado do carro
 tabela = {'preço': [], ' Veículo': [], ' Cor': [], ' Valor Fipe': [],  ' Ano': [],
           ' Combustível': [], ' KM': [], ' Situação de Entrada': [], ' Final Placa': [], ' Comitente': [], 'foto01': [], 'foto02': [], 'foto03': [], 'foto04': []}
-
+localizaçaoMain = Path().absolute()
 x = 0
 # durante a execuçao desse For, ele vai entrar em cada uma das categorias, usados, seminovos e outros, e cada um deles o codigo vai pegar os dados
 for k, j in enumerate(respostas):
@@ -137,20 +138,23 @@ for k, j in enumerate(respostas):
                         quantBD += 1
                     except:
                         pass
+                localizaçaoCar = localizaçaoMain/f'{listaBD[1]}'
+                os.chdir(localizaçaoMain)
+                localizaçaoCar.mkdir()
+                os.chdir(localizaçaoCar)
                 # fotos para o banco de dados
                 for num, pic in enumerate(ftCar):
-                    
-                    nomeFoto = f'{listaBD[1]}foto{num+1}.jpg'.replace(' ','').lower()
-                    
-                    
+
+                    nomeFoto = f'{listaBD[1]}foto{num+1}.jpg'.replace(
+                        ' ', '').lower()
+
                     with open(nomeFoto, 'wb')as f:
                         img = requests.get(pic['src'])
                         f.write(img.content)
-                    if num <4:
+                    if num < 4:
                         listaBD[num+10] = converToBinary(nomeFoto)
 
                     # parei aqui faznedo fotos para o banco de dados, ja baixei as fotos
-                
 
             except Exception:
                 # quando nao conseguir clicar no carro, vai passar a pagina ate nao conseguir, quando nao conseguir,
@@ -177,7 +181,7 @@ for k, j in enumerate(respostas):
             else:
                 comando = "INSERT INTO {} (preço, Veículo, Cor, ValorFipe, Ano,Combustível, KM, SituaçãodeEntrada, FinalPlaca, Comitente, foto01, foto02, foto03, foto04) VALUES ( %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(
                     NomeTabela)
-               
+
                 cursor.execute(comando, listaBD)
                 conexao.commit()
                 navegador.back()
