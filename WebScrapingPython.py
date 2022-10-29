@@ -4,7 +4,6 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
@@ -32,6 +31,11 @@ if (f'{NomeTabela}',) not in Verificar:
     print('tabela criada com sucesso')
 else:
     print('tabela ja criada')
+
+
+def editImage(tabela):
+    comandoTabela = f"SELECT foto01,Veículo FROM {tabela}"
+    cursor.execute(comandoTabela)
 
 
 def sopa(url):
